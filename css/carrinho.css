@@ -81,3 +81,17 @@ input[type="number"] {
 .finalizar button:hover {
   background-color: #007bff;
 }
+
+.btn-excluir {
+  background-color: #e63946;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-excluir:hover {
+  background-color: #d62828;
+}
