@@ -5,6 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Camisetas</title>
   <link rel="stylesheet" href="../css/style.css" />
+  <style>
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 15px;
+      margin: 10px;
+      width: 200px;
+      display: inline-block;
+      vertical-align: top;
+      text-align: center;
+    }
+    .card img {
+      max-width: 100%;
+      height: auto;
+      margin-bottom: 10px;
+    }
+    .botao, .btn-adicionar {
+      display: inline-block;
+      padding: 8px 15px;
+      margin-top: 10px;
+      background-color: #007bff;
+      color: white;
+      text-decoration: none;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s ease;
+    }
+    .botao:hover, .btn-adicionar:hover {
+      background-color: #0056b3;
+    }
+  </style>
 </head>
 <body>
   <header class="navbar">
@@ -28,35 +61,63 @@
     window.addEventListener('load', async () => {
       let div = document.getElementsByClassName('produtos')[0];
 
-      let dados = await fetch(`http://127.0.0.1:5055/produtos/categoria/${id}`)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(response.status);
-          }
-          return response.json();
+      try {
+        let dados = await fetch(`http://127.0.0.1:5055/produtos/categoria/${id}`);
+        if (!dados.ok) throw new Error(dados.status);
+        dados = await dados.json();
+
+        let categoria = await fetch(`http://127.0.0.1:5055/categoria/${id}`);
+        if (!categoria.ok) throw new Error(categoria.status);
+        categoria = await categoria.json();
+
+        document.getElementById('titulo').textContent = categoria.nome;
+
+        dados.forEach((produto) => {
+          div.innerHTML += `
+            <div class="card">
+              <img src="..${produto['URL imagem']}" alt="${produto.nome}">
+              <h3>${produto.nome}</h3>
+              <p>R$ ${produto.preço}</p>
+              <a href="produtoespec.html?id=${produto.id}" class="botao">Ver detalhes</a>
+              <button class="btn-adicionar" 
+                data-id="${produto.id}" 
+                data-nome="${produto.nome}" 
+                data-imagem="..${produto['URL imagem']}">Adicionar ao carrinho</button>
+            </div>
+          `;
         });
 
-      let categoria = await fetch(`http://127.0.0.1:5055/categoria/${id}`)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(response.status);
-          }
-          return response.json();
+        // Depois de criar os botões, adiciona o evento para adicionar ao carrinho
+        document.querySelectorAll('.btn-adicionar').forEach(botao => {
+          botao.addEventListener('click', () => {
+            const id = botao.getAttribute('data-id');
+            const nome = botao.getAttribute('data-nome');
+            const imagem = botao.getAttribute('data-imagem');
+
+            let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+
+            const index = carrinho.findIndex(p => p.id === id);
+
+            if (index > -1) {
+              carrinho[index].quantidade++;
+            } else {
+              carrinho.push({
+                id,
+                descricao: nome,
+                imagem,
+                quantidade: 1
+              });
+            }
+
+            localStorage.setItem('carrinho', JSON.stringify(carrinho));
+            alert(`Produto "${nome}" adicionado ao carrinho!`);
+          });
         });
 
-      let div2 = document.getElementById('titulo');
-      div2.innerHTML = categoria.nome;
-
-      await dados.map((produto) => {
-        div.innerHTML += `
-          <div class="card">
-            <img src="..${produto['URL imagem']}" alt="Camiseta Básica Branca">
-            <h3>${produto.nome}</h3>
-            <p>R$ ${produto.preço}</p>
-            <a href="produtoespec.html?id=${produto.id}" class="botao">Ver detalhes</a>
-          </div>
-        `;
-      });
+      } catch (error) {
+        console.error("Erro ao carregar produtos ou categoria:", error);
+        div.innerHTML = "<p>Erro ao carregar os produtos. Tente novamente mais tarde.</p>";
+      }
     });
   </script>
 </body>

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Carrinho de Compras</title>
-  <link rel="stylesheet" href="../css/carrinho.css">
+  <link rel="stylesheet" href="../css/carrinho.css" />
   <style>
     table {
       width: 80%;
@@ -18,19 +18,42 @@
     img {
       max-width: 80px;
     }
+    button.btn-excluir {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button.btn-excluir:hover {
+      background-color: #b02a37;
+    }
+    #finalizarCompra {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+    #finalizarCompra:hover {
+      background-color: #0056b3;
+    }
   </style>
 </head>
 <body>
   <header class="navbar">
-    <div class="logo">
-  GOLDEN ERA
-</div>
-
+    <div class="logo">GOLDEN ERA</div>
   </header>
 
   <h1 style="text-align:center;">Meu Carrinho</h1>
 
-  <table>
+  <table id="tabela-carrinho">
     <thead>
       <tr>
         <th>Imagem</th>
@@ -40,69 +63,83 @@
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td><img src="../imagens/bone.jpg" alt="Produto 1"></td>
-        <td>Boné Boston Preto</td>
-        <td><input type="number" name="qtd1" min="0" value="1"></td>
-        <td><button class="btn-excluir">Excluir</button></td>
-      </tr>
-      <tr>
-        <td><img src="../imagens/camiseta.jpg" alt="Produto 2"></td>
-        <td>Camiseta Básica Preta</td>
-        <td><input type="number" name="qtd2" min="0" value="2"></td>
-        <td><button class="btn-excluir">Excluir</button></td>
-      </tr>
-      <tr>
-        <td><img src="../imagens/short.jpg" alt="Produto 3"></td>
-        <td>Short Linho Azul</td>
-        <td><input type="number" name="qtd3" min="0" value="2"></td>
-        <td><button class="btn-excluir">Excluir</button></td>
-      </tr>
-      <tr>
-        <td><img src="../imagens/oculos_azul.jpg" alt="Produto 4"></td>
-        <td>Óculos Sol Azul</td>
-        <td><input type="number" name="qtd4" min="0" value="2"></td>
-        <td><button class="btn-excluir">Excluir</button></td>
-      </tr>
+      <!-- Conteúdo será inserido aqui pelo JavaScript -->
     </tbody>
   </table>
 
   <div class="finalizar" style="text-align: center; margin-top: 20px;">
-    <form action="" method="get">
-      <button type="submit">Finalizar Compra</button>
-    </form>
+    <button id="finalizarCompra">Finalizar Compra</button>
   </div>
 
   <script>
-    // Apenas botão de excluir (remove a linha)
-    document.querySelectorAll(".btn-excluir").forEach(botao => {
-      botao.addEventListener("click", function () {
-        const linha = this.closest("tr");
-        linha.remove();
-      });
-    });
-
-    // Lógica de zerar quantidade (produto continua, não é removido)
-    const camposQtd = document.querySelectorAll('tbody input[type="number"]');
-    camposQtd.forEach(input => {
-      input.addEventListener('change', function() {
-        const novaQtd = parseInt(this.value);
-        if (isNaN(novaQtd) || novaQtd < 0) {
-          this.value = 0; // segurança
-        }
-        // se for 0, não remove — apenas mantém o produto zerado
-      });
-    });
-  </script>
-
-  <script>
-    // Verifica se o usuário está autenticado
+    // Verifica se está logado
     const autenticado = localStorage.getItem("autenticado");
     if (autenticado !== "true") {
-        alert("Você precisa estar logado para acessar o carrinho.");
-        window.location.href = "login.html";
+      alert("Você precisa estar logado para acessar o carrinho.");
+      window.location.href = "login.html";
     }
-  </script>
 
+    // Carrega carrinho do localStorage (array de objetos: {imagem, descricao, quantidade})
+    let produtosCarrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
+
+    const tbody = document.querySelector("#tabela-carrinho tbody");
+
+    function atualizarCarrinho() {
+      tbody.innerHTML = "";
+
+      if (produtosCarrinho.length === 0) {
+        const linhaVazia = document.createElement("tr");
+        linhaVazia.innerHTML = `<td colspan="4" style="text-align:center; padding: 20px;">Seu carrinho está vazio.</td>`;
+        tbody.appendChild(linhaVazia);
+        return;
+      }
+
+      produtosCarrinho.forEach((produto, index) => {
+        const linha = document.createElement("tr");
+
+        linha.innerHTML = `
+          <td><img src="${produto.imagem}" alt="${produto.descricao}"></td>
+          <td>${produto.descricao}</td>
+          <td><input type="number" min="0" value="${produto.quantidade}" data-index="${index}" style="width: 60px; text-align:center;"></td>
+          <td><button class="btn-excluir" data-index="${index}">Excluir</button></td>
+        `;
+
+        tbody.appendChild(linha);
+      });
+
+      // Botões excluir
+      document.querySelectorAll(".btn-excluir").forEach(botao => {
+        botao.addEventListener("click", function () {
+          const index = this.getAttribute("data-index");
+          produtosCarrinho.splice(index, 1);
+          localStorage.setItem("carrinho", JSON.stringify(produtosCarrinho));
+          atualizarCarrinho();
+        });
+      });
+
+      // Inputs quantidade
+      document.querySelectorAll('input[type="number"]').forEach(input => {
+        input.addEventListener("change", function () {
+          let novaQtd = parseInt(this.value);
+          if (isNaN(novaQtd) || novaQtd < 0) novaQtd = 0;
+          const idx = this.getAttribute("data-index");
+          produtosCarrinho[idx].quantidade = novaQtd;
+          localStorage.setItem("carrinho", JSON.stringify(produtosCarrinho));
+        });
+      });
+    }
+
+    atualizarCarrinho();
+
+    document.getElementById("finalizarCompra").addEventListener("click", () => {
+      if (produtosCarrinho.length === 0) {
+        alert("Seu carrinho está vazio!");
+        return;
+      }
+      alert("Compra realizada com sucesso!");
+      localStorage.removeItem("carrinho");
+      window.location.href = "roupas.html"; // altere para sua página inicial
+    });
+  </script>
 </body>
 </html>

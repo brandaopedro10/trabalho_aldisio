@@ -1,10 +1,27 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Camiseta Básica - Detalhes</title>
-  <link rel="stylesheet" href="../css/produto1.css">
+  <link rel="stylesheet" href="../css/produto1.css" />
+  <style>
+    .botao {
+      display: inline-block;
+      padding: 10px 20px;
+      margin-top: 15px;
+      background-color: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+    .botao:hover {
+      background-color: #0056b3;
+    }
+  </style>
 </head>
 <body>
 
@@ -17,36 +34,63 @@
   </header>
 
   <main class="container">
+    <!-- Conteúdo do produto será inserido aqui -->
   </main>
-    <script>
-        const url = new URL(window.location.href);
-        const params = new URLSearchParams(url.search);
-        const id = params.get('id');
-      window.addEventListener('load', async ()=>{
-      let div = document.getElementsByClassName('container')[0]
-      let dados = await fetch(`http://127.0.0.1:5055/produtos/${id}`)
-                .then(response => {
-                  if (!response.ok) {
-                    throw new Error(response.status);
-                  }
-                  return response.json();
-                })
-        div.innerHTML += `
-        <div class="imagem">
-            <img src="..${dados['URL imagem']}" alt="Camiseta Básica Branca">
-        </div>
 
-        <div class="detalhes">
-        <h1>${dados.nome}</h1>
-        <p>
-            ${dados.descricao}
-        </p>
+  <script>
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    const id = params.get('id');
 
+    window.addEventListener('load', async () => {
+      let container = document.querySelector('.container');
+      try {
+        let response = await fetch(`http://127.0.0.1:5055/produtos/${id}`);
+        if (!response.ok) throw new Error(response.status);
+        let dados = await response.json();
 
-        <p class="preco">Preço: R$ ${dados.preço}</p>
-        <a href="carrinho.html" class="botao">Adicionar ao carrinho</a>
-      `
-      })
-    </script>
+        container.innerHTML = `
+          <div class="imagem">
+            <img src="..${dados['URL imagem']}" alt="${dados.nome}">
+          </div>
+
+          <div class="detalhes">
+            <h1>${dados.nome}</h1>
+            <p>${dados.descricao}</p>
+            <p class="preco">Preço: R$ ${dados.preço}</p>
+            <button id="btnAdicionar" class="botao">Adicionar ao carrinho</button>
+          </div>
+        `;
+
+        // Botão adicionar ao carrinho
+        const btnAdicionar = document.getElementById('btnAdicionar');
+        btnAdicionar.addEventListener('click', () => {
+          let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+
+          const index = carrinho.findIndex(p => p.id === dados.id);
+
+          if (index > -1) {
+            carrinho[index].quantidade++;
+          } else {
+            carrinho.push({
+              id: dados.id,
+              descricao: dados.nome,
+              imagem: `..${dados['URL imagem']}`,
+              quantidade: 1
+            });
+          }
+
+          localStorage.setItem('carrinho', JSON.stringify(carrinho));
+          alert(`Produto "${dados.nome}" adicionado ao carrinho!`);
+          window.location.href = "roupas.html";
+        });
+
+      } catch (error) {
+        container.innerHTML = `<p>Erro ao carregar os detalhes do produto.</p>`;
+        console.error(error);
+      }
+    });
+  </script>
+
 </body>
 </html>
