@@ -25,7 +25,8 @@ def criar_usuário():
     dados = request.json
     if Usuario.query.filter_by(email = dados['email']).first():
         return jsonify({'erro: Email ja cadastrado'}),409
-    usuario = Usuario(nome = dados['nome'], email = dados['email'])
+    usuario = Usuario(nome = dados['nome'], email = dados['email'], cidade = dados['cidade'],
+                      endereco = dados['endereco'], cpf = dados['cpf'], telefone = dados['telefone'])
     usuario.set_senha(dados['senha'])
     db.session.add(usuario)
     db.session.commit()
