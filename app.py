@@ -4,10 +4,11 @@ from models import db, Usuario, Produto, Categoria
 from config import Config
 from werkzeug.utils import secure_filename
 import os
-
+from flask_cors import CORS
 
 app = Flask(__name__)
 app.config.from_object(Config)
+CORS(app)
 
 db.init_app(app)
 jwt = JWTManager(app)
@@ -125,6 +126,13 @@ def get_produtos_por_categoria(categoria_id):
 
     produtos = Produto.query.filter_by(categoria_id=categoria_id).all()
     return jsonify([produto.to_dict() for produto in produtos])
+
+@app.route('/categoria/<int:categoria_id>', methods=['GET'])
+def get_categoria_por_id(categoria_id):
+    categoria = Categoria.query.get(categoria_id)
+    if not categoria:
+        return jsonify({"mensagem": "Categoria não encontrada"}), 404
+    return jsonify(categoria.to_dict())
 
 @app.route('/produtos/<int:produto_id>', methods=['GET'])
 def get_detalhes_produto(produto_id):

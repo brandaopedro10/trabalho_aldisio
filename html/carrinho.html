@@ -4,15 +4,30 @@
   <meta charset="UTF-8">
   <title>Carrinho de Compras</title>
   <link rel="stylesheet" href="../css/carrinho.css">
+  <style>
+    table {
+      width: 80%;
+      margin: auto;
+      border-collapse: collapse;
+    }
+    td, th {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+    img {
+      max-width: 80px;
+    }
+  </style>
 </head>
 <body>
-    <header class="navbar">
-        <div class="logo">
-            <a href="roupas.html">GOLDEN ERA</a>
-        </div>
-    </header>
+  <header class="navbar">
+    <div class="logo">
+      <a href="roupas.html">GOLDEN ERA</a>
+    </div>
+  </header>
 
-  <h1>Meu Carrinho</h1>
+  <h1 style="text-align:center;">Meu Carrinho</h1>
 
   <table>
     <thead>
@@ -26,31 +41,55 @@
       <tr>
         <td><img src="../imagens/bone.jpg" alt="Produto 1"></td>
         <td>Boné Boston Preto</td>
-        <td><input type="number" name="qtd1" min="1" value="1"></td>
+        <td><input type="number" name="qtd1" min="0" value="1"></td>
       </tr>
       <tr>
         <td><img src="../imagens/camiseta.jpg" alt="Produto 2"></td>
-        <td>Camiseta Básica Preta </td>
-        <td><input type="number" name="qtd2" min="1" value="2"></td>
+        <td>Camiseta Básica Preta</td>
+        <td><input type="number" name="qtd2" min="0" value="2"></td>
       </tr>
       <tr>
-        <td><img src="../imagens/short.jpg" alt="Produto 2"></td>
+        <td><img src="../imagens/short.jpg" alt="Produto 3"></td>
         <td>Short Linho Azul</td>
-        <td><input type="number" name="qtd2" min="1" value="2"></td>
+        <td><input type="number" name="qtd3" min="0" value="2"></td>
       </tr>
       <tr>
-        <td><img src="../imagens/oculos_azul.jpg" alt="Produto 2"></td>
+        <td><img src="../imagens/oculos_azul.jpg" alt="Produto 4"></td>
         <td>Óculos Sol Azul</td>
-        <td><input type="number" name="qtd2" min="1" value="2"></td>
+        <td><input type="number" name="qtd4" min="0" value="2"></td>
       </tr>
     </tbody>
   </table>
 
-  <div class="finalizar">
+  <div class="finalizar" style="text-align: center; margin-top: 20px;">
     <form action="" method="get">
       <button type="submit">Finalizar Compra</button>
     </form>
   </div>
+
+  <script>
+    // Seleciona todos os campos de quantidade
+    const camposQtd = document.querySelectorAll('tbody input[type="number"]');
+
+    camposQtd.forEach(input => {
+      input.addEventListener('change', function() {
+        const novaQtd = parseInt(this.value);
+        if (novaQtd === 0) {
+          const linha = this.closest('tr');
+          linha.remove();
+        }
+      });
+    });
+  </script>
+
+  <script>
+    // Verifica se o usuário está autenticado
+    const autenticado = localStorage.getItem("autenticado");
+    if (autenticado !== "true") {
+        alert("Você precisa estar logado para acessar o carrinho.");
+        window.location.href = "login.html";
+    }
+</script>
 
 </body>
 </html>

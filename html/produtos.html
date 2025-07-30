@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Camisetas</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">GOLDEN ERA</div>
+    <nav class="menu">
+      <a href="carrinho.html">Carrinho</a>
+      <a href="cadastro.html">Cadastro</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1 id="titulo">Camisetas Básicas</h1>
+    <div class="produtos"></div>
+  </main>
+
+  <script>
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    const id = params.get('id');
+
+    window.addEventListener('load', async () => {
+      let div = document.getElementsByClassName('produtos')[0];
+
+      let dados = await fetch(`http://127.0.0.1:5055/produtos/categoria/${id}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(response.status);
+          }
+          return response.json();
+        });
+
+      let categoria = await fetch(`http://127.0.0.1:5055/categoria/${id}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(response.status);
+          }
+          return response.json();
+        });
+
+      let div2 = document.getElementById('titulo');
+      div2.innerHTML = categoria.nome;
+
+      await dados.map((produto) => {
+        div.innerHTML += `
+          <div class="card">
+            <img src="..${produto['URL imagem']}" alt="Camiseta Básica Branca">
+            <h3>${produto.nome}</h3>
+            <p>R$ ${produto.preço}</p>
+            <a href="produtoespec.html?id=${produto.id}" class="botao">Ver detalhes</a>
+          </div>
+        `;
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+        }
+        label, input {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .error {
+            color: red;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        .success {
+            color: green;
+        }
+        input[type="submit"] {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <label for="email">E-mail ou Login</label>
+            <input type="text" id="email" name="email" required>
+
+            <label for="senha">Senha</label>
+            <input type="password" id="senha" name="senha" required>
+
+            <span class="error" id="erroLogin"></span>
+
+            <input type="submit" value="Entrar">
+        </form>
+    </div>
+
+    <script>
+    const form = document.getElementById('loginForm');
+    const erroLogin = document.getElementById('erroLogin');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const email = document.getElementById('email').value.trim();
+        const senha = document.getElementById('senha').value;
+
+        erroLogin.textContent = "";
+
+        if (email === "" || senha === "") {
+            erroLogin.textContent = "Preencha todos os campos.";
+            return;
+        }
+
+        const usuarioSalvo = JSON.parse(localStorage.getItem("usuario"));
+
+        if (!usuarioSalvo) {
+            erroLogin.textContent = "Nenhum usuário cadastrado.";
+            return;
+        }
+
+        if (email === usuarioSalvo.email && senha === usuarioSalvo.senha) {
+            localStorage.setItem("autenticado", "true"); // Sinaliza que está logado
+            window.location.href = "carrinho.html";
+        } else {
+            erroLogin.textContent = "Credenciais inválidas. Tente novamente.";
+        }
+    });
+    </script>
+
+</body>
+</html>

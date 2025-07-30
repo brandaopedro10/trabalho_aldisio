@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camiseta Básica - Detalhes</title>
+  <link rel="stylesheet" href="../css/produto1.css">
+</head>
+<body>
+
+  <header>
+    <h2>Detalhes do Produto</h2>
+    <div class="icons">
+      <a href="cadastro.html"></a>
+      <a href="carrinho.html"></a>
+    </div>
+  </header>
+
+  <main class="container">
+  </main>
+    <script>
+        const url = new URL(window.location.href);
+        const params = new URLSearchParams(url.search);
+        const id = params.get('id');
+      window.addEventListener('load', async ()=>{
+      let div = document.getElementsByClassName('container')[0]
+      let dados = await fetch(`http://127.0.0.1:5055/produtos/${id}`)
+                .then(response => {
+                  if (!response.ok) {
+                    throw new Error(response.status);
+                  }
+                  return response.json();
+                })
+        div.innerHTML += `
+        <div class="imagem">
+            <img src="..${dados['URL imagem']}" alt="Camiseta Básica Branca">
+        </div>
+
+        <div class="detalhes">
+        <h1>${dados.nome}</h1>
+        <p>
+            ${dados.descricao}
+        </p>
+
+
+        <p class="preco">Preço: R$ ${dados.preço}</p>
+        <a href="carrinho.html" class="botao">Adicionar ao carrinho</a>
+      `
+      })
+    </script>
+</body>
+</html>
